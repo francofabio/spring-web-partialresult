@@ -111,8 +111,8 @@ public class OrderController {
      */
     @RequestMapping(value="/all-orders-with-customer", method = RequestMethod.GET)
     @PartialResult(includes = {
-    @Include("customer")
-  })
+        @Include("customer")
+    })
     public Response<List<Order>> getAllOrdersWithCustomer() {
         return Response.ok(orderRepository.findAll());
     }
@@ -130,8 +130,8 @@ public class OrderController {
      */
     @RequestMapping(value="/all-orders-with-customer-private", method = RequestMethod.GET)
     @PartialResult(includes = {
-    @Include("customer")
-  }, excludes="amount")
+        @Include("customer")
+    }, excludes="amount")
     public Response<List<Order>> getAllOrdersWithCustomerWithouAmount() {
         return Response.ok(orderRepository.findAll());
     }
