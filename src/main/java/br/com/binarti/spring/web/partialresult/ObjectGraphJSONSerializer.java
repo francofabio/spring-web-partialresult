@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import br.com.binarti.sjog.Node;
 import br.com.binarti.sjog.ObjectGraph;
 
-class ObjectGraphJSONSerializer {
+public class ObjectGraphJSONSerializer {
 
 	private ObjectGraph objectGraph;
 	
@@ -39,9 +39,17 @@ class ObjectGraphJSONSerializer {
 	private void serializeCollection(ObjectMapper mapper, ArrayNode array, Node root, String currentPath) {
 		int collectionLength = objectGraph.getCollectionLength(currentPath);
 		for (int i=0; i < collectionLength; i++) {
-			ObjectNode objectNode = mapper.createObjectNode();
-			array.add(objectNode);
-			serializeObject(mapper, objectNode, root, indexedPath(currentPath, i));
+			//For each collection item, have a node to represent this item.
+			Node itemNode = root.getChild(indexedPath(i));
+			//When a node represents a primitive value, not create an object for add in array, add object direct,
+			//because if it is added, jackson will include the element as an object and not its primitive value
+			if (itemNode.isPrimitive()) {
+				array.addPOJO(itemNode.getValue());
+			} else {
+				ObjectNode objectNode = mapper.createObjectNode();
+				array.add(objectNode);
+				serializeObject(mapper, objectNode, itemNode, itemNode.getPath().getPath());
+			}
 		}
 	}
 
@@ -68,8 +76,8 @@ class ObjectGraphJSONSerializer {
 		}
 	}
 
-	private String indexedPath(String currentPath, int index) {
-		return currentPath + "[" + index + "]";
+	private String indexedPath(int index) {
+		return String.format("[%d]", index);
 	}
 	
 }

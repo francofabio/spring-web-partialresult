@@ -44,7 +44,7 @@ public class FakeOrderController {
 		@Include(value = "customer", includePrimitives=false, includes = "address")
 	})
 	public Response<Order> getOrderWithoutIncludePrimitiveInNestedInclude(Long id) {
-		return Response.ok(new Order(1L, new Date(), new Customer(1L, "Customer 1")));
+		return Response.ok(new Order(1L, new Date(), new Customer(1L, "Customer 1", new Address("Street", new City("City", "ST")))));
 	}
 	
 	@PartialResult(includes = {
@@ -125,7 +125,7 @@ public class FakeOrderController {
 		@Include("customer.address")
 	})
 	public Response<Order> getOrderWithoutIncludePrimitiveInSingleNestedInclude(Long id) {
-		return Response.ok(new Order(1L, new Date(), new Customer(1L, "Customer 1")));
+		return Response.ok(new Order(1L, new Date(), new Customer(1L, "Customer 1", new Address("Street", new City("City", "ST")))));
 	}
 	
 }

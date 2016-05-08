@@ -128,7 +128,7 @@ public class ObjectGraphJSONSerializerTest {
         products.add(createProduct(1L));
         products.add(createProduct(2L));
 
-        serialize(ResponseBuilder.from(products, Product.class).build());
+        serialize(ResponseBuilder.from(products).build());
         assertEquals(expectedResult, jsonResult());
     }
     
@@ -147,7 +147,7 @@ public class ObjectGraphJSONSerializerTest {
         String expectedResult = "[]";
          List<Order> orders = new ArrayList<Order>() {};
 
-        serialize(ResponseBuilder.from(orders, Order.class).include("products.id","products.name").build());
+        serialize(ResponseBuilder.from(orders).include("products.id","products.name").build());
         assertEquals(expectedResult, jsonResult());
     }
     
@@ -164,7 +164,7 @@ public class ObjectGraphJSONSerializerTest {
     }
     
     @Test
-    public void shouldSerializeList() {
+    public void shouldSerializeListOfPrimitiveAndHeterogeneousValues() {
         String expectedResult = "[1,2,3,4,5,6,\"json\"]";
 
         List<Object> list = new ArrayList<Object>();
@@ -215,7 +215,7 @@ public class ObjectGraphJSONSerializerTest {
         order.addProduct(createProductWithGroup(2L, 2L));
 
         List<Order> orders = Collections.singletonList(order);
-        serialize(ResponseBuilder.from(orders, Order.class).include("products", "products.group").build());
+        serialize(ResponseBuilder.from(orders).include("products", "products.group").build());
         assertEquals(expectedResult, jsonResult());
     }
 
@@ -344,7 +344,7 @@ public class ObjectGraphJSONSerializerTest {
     public void shouldSerializeNull() {
         String expectedResult = "{}";
 
-        serialize(ResponseBuilder.from(null, Product.class).build());
+        serialize(ResponseBuilder.from(null).build());
         assertEquals(expectedResult, jsonResult());
     }
 
@@ -352,7 +352,7 @@ public class ObjectGraphJSONSerializerTest {
     public void shouldSerializeNullWithInclude() {
         String expectedResult = "{}";
         
-        serialize(ResponseBuilder.from(null, Product.class).include("name").build());
+        serialize(ResponseBuilder.from(null).include("name").build());
         assertEquals(expectedResult, jsonResult());
     }
 
@@ -360,7 +360,7 @@ public class ObjectGraphJSONSerializerTest {
     public void shouldSerializeNullWithExclude() {
         String expectedResult = "{}";
         
-        serialize(ResponseBuilder.from(null, Product.class).exclude("name").build());
+        serialize(ResponseBuilder.from(null).exclude("name").build());
         assertEquals(expectedResult, jsonResult());
     }
     

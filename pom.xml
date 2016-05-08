@@ -4,7 +4,7 @@
 	<groupId>br.com.binarti</groupId>
 	<artifactId>spring-web-partialresult</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0</version>
+	<version>1.1.1</version>
 	<name>spring-web-partialresult</name>
 
 	<properties>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>br.com.binarti</groupId>
 			<artifactId>sjog</artifactId>
-			<version>1.0</version>
+			<version>1.1.0</version>
 		</dependency>
 
 		<dependency>
@@ -92,6 +92,20 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

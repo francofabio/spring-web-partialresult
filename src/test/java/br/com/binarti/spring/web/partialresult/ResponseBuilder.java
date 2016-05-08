@@ -9,13 +9,9 @@ public class ResponseBuilder<T> {
 	private T object;
 	private ObjectGraphBuilder template;
 	
-	public ResponseBuilder(T object, Class<?> cls) {
-		this.object = object;
-		this.template = new ObjectGraphBuilder(cls);
-	}
-	
 	public ResponseBuilder(T object) {
-		this(object, (object != null) ? object.getClass() : Object.class);
+		this.object = object;
+		this.template = new ObjectGraphBuilder();
 	}
 	
 	public ResponseBuilder<T> include(String...properties) {
@@ -42,10 +38,6 @@ public class ResponseBuilder<T> {
 	
 	public static <T> ResponseBuilder<T> from(T object) {
 		return new ResponseBuilder<T>(object);
-	}
-	
-	public static <T> ResponseBuilder<T> from(T object, Class<?> cls) {
-		return new ResponseBuilder<T>(object, cls);
 	}
 	
 }

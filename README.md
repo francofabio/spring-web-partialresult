@@ -15,13 +15,13 @@ And add this dependency in your pom.xml
 <dependency>
     <groupId>br.com.binarti</groupId>
     <artifactId>spring-web-partialresult</artifactId>
-    <version>1.0</version> <!-- or the last version -->
+    <version>1.1.1</version> <!-- or the last version -->
 </dependency>
 ```
 
 This library is not available yet in maven central repository, it is coming soon.<br/>
-If you not use maven. You can also build the jar and add in classpath of the Java app.<br/>
-To build jar package, you need install maven and execute the command:
+If you not use maven. You can also build the jar and add it in classpath of the your Java app.<br/>
+To build jar package, you need to install maven and execute the command:
 ```
 mvn clean package
 ```
@@ -30,7 +30,7 @@ The jar package is available in target/ directory.
 <strong>Java 1.8 is required.</strong>
 
 ## Quick start
-This framework uses the <a href="https://github.com/binartecnologia/sjog">Simple Java Object-Graph</a> library to resolve the properties that will be used to generate JSON response. Therefore the same rules used in that library will be applied by this framework. 
+This framework uses the <a href="https://github.com/binartecnologia/sjog">Simple Java Object-Graph</a> library to resolve the properties, that will be used to generate JSON response. Therefore the same rules used in that library will be applied by this framework. 
 
 To configure your spring to use spring-web-partialresult, you should include the package br.com.binarti.spring.web.partialresult in your component scan and enable AspectJ.
 
@@ -45,7 +45,7 @@ To configure your spring to use spring-web-partialresult, you should include the
 })
 @EnableAspectJAutoProxy
 public class AppConfiguration implements WebMvcConfigurerAdapter {
-    @Bean
+  @Bean
   public PartialResultJSONMessageConverter partialResultMessageConverter() {
     return new PartialResultJSONMessageConverter();
   }
@@ -60,7 +60,7 @@ public class AppConfiguration implements WebMvcConfigurerAdapter {
 public class Customer {
   private Long id;
   private String name;
-  //constructors, getters and setters ommited
+  //constructors, getters and setters omitted
 }
 
 //Order.java
@@ -69,7 +69,7 @@ public class Order {
   private Date date;
   private Customer customer;
   private double amount;
-  //constructors, getters and setters ommited
+  //constructors, getters and setters omitted
 }
 
 //OrderController.java

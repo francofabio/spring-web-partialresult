@@ -2,6 +2,7 @@ package br.com.binarti.spring.web.partialresult;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -146,9 +147,9 @@ public class PartialResultTest {
 		
 		assertNotNull(graph.getNode("itens"));
 		assertTrue(graph.getNode("itens").isCollection());
-		assertEquals(2, graph.getNode("itens").getChildren().size());
-		assertNotNull(graph.getNode("itens.id"));
-		assertNotNull(graph.getNode("itens.price"));
+		assertEquals(2, graph.getNode("itens[0]").getChildren().size());
+		assertNotNull(graph.getNode("itens[0].id"));
+		assertNotNull(graph.getNode("itens[0].price"));
 	}
 	
 	@Test
@@ -173,14 +174,14 @@ public class PartialResultTest {
 		
 		assertNotNull(graph.getNode("itens"));
 		assertTrue(graph.getNode("itens").isCollection());
-		assertEquals(3, graph.getNode("itens").getChildren().size());
-		assertNotNull(graph.getNode("itens.id"));
-		assertNotNull(graph.getNode("itens.price"));
+		assertEquals(3, graph.getNode("itens[0]").getChildren().size());
+		assertNotNull(graph.getNode("itens[0].id"));
+		assertNotNull(graph.getNode("itens[0].price"));
 		
-		assertNotNull(graph.getNode("itens.product"));
-		assertEquals(2, graph.getNode("itens.product").getChildren().size());
-		assertNotNull(graph.getNode("itens.product.id"));
-		assertNotNull(graph.getNode("itens.product.name"));
+		assertNotNull(graph.getNode("itens[0].product"));
+		assertEquals(2, graph.getNode("itens[0].product").getChildren().size());
+		assertNotNull(graph.getNode("itens[0].product.id"));
+		assertNotNull(graph.getNode("itens[0].product.name"));
 	}
 	
 	@Test
@@ -194,25 +195,25 @@ public class PartialResultTest {
 	}
 	
 	private void checkCreateObjectGraphForCollectionResultInRoot(ObjectGraph graph) {
-		assertEquals(4, graph.getNodes().size());
-		assertNotNull(graph.getNode("id"));
-		assertNotNull(graph.getNode("date"));
+		assertEquals(4, graph.getNode("$root[0]").getChildren().size());
+		assertNotNull(graph.getNode("$root[0].id"));
+		assertNotNull(graph.getNode("$root[0].date"));
 		
-		assertNotNull(graph.getNode("customer"));
-		assertEquals(2, graph.getNode("customer").getChildren().size());
-		assertNotNull(graph.getNode("customer.id"));
-		assertNotNull(graph.getNode("customer.name"));
+		assertNotNull(graph.getNode("$root[0].customer"));
+		assertEquals(2, graph.getNode("$root[0].customer").getChildren().size());
+		assertNotNull(graph.getNode("$root[0].customer.id"));
+		assertNotNull(graph.getNode("$root[0].customer.name"));
 		
-		assertNotNull(graph.getNode("itens"));
-		assertTrue(graph.getNode("itens").isCollection());
-		assertEquals(3, graph.getNode("itens").getChildren().size());
-		assertNotNull(graph.getNode("itens.id"));
-		assertNotNull(graph.getNode("itens.price"));
+		assertNotNull(graph.getNode("$root[0].itens"));
+		assertTrue(graph.getNode("$root[0].itens").isCollection());
+		assertEquals(3, graph.getNode("$root[0].itens[0]").getChildren().size());
+		assertNotNull(graph.getNode("$root[0].itens[0].id"));
+		assertNotNull(graph.getNode("$root[0].itens[0].price"));
 		
-		assertNotNull(graph.getNode("itens.product"));
-		assertEquals(2, graph.getNode("itens.product").getChildren().size());
-		assertNotNull(graph.getNode("itens.product.id"));
-		assertNotNull(graph.getNode("itens.product.name"));
+		assertNotNull(graph.getNode("$root[0].itens[0].product"));
+		assertEquals(2, graph.getNode("$root[0].itens[0].product").getChildren().size());
+		assertNotNull(graph.getNode("$root[0].itens[0].product.id"));
+		assertNotNull(graph.getNode("$root[0].itens[0].product.name"));
 	}
 	
 	@Test
@@ -247,9 +248,11 @@ public class PartialResultTest {
 		checkCreateObjectGraphForAnonymousClass(graphNonNullResponse);
 	}
 	
-	@Test(expected=PartialResultException.class)
-	public void shouldNotAllowCreateObjectGraphForAnonymousClassAndNullResponse() throws Exception {
-		template(FakeOrderController.class, "getAnonymousPersonObject");
+	@Test
+	public void shouldCreateObjectGraphForAnonymousClassAndNullResponse() throws Exception {
+		ObjectGraph anonNullGraph = template(FakeOrderController.class, "getAnonymousPersonObject").build(null);
+		assertNotNull(anonNullGraph.getNode("$root"));
+		assertNull(anonNullGraph.getObject());
 	}
 	
 	@Test
@@ -281,13 +284,13 @@ public class PartialResultTest {
 		Response<List<Customer>> response = customerController().list();
 		ObjectGraph graphNonNullResponse = template(response, FakeCustomerController.class, "list").build(response.getData());
 		
-		assertEquals(3, graphNonNullResponse.getNodes().size());
-		assertNotNull(graphNonNullResponse.getNode("id"));
-		assertNotNull(graphNonNullResponse.getNode("name"));
-		assertNotNull(graphNonNullResponse.getNode("address"));
+		assertEquals(3, graphNonNullResponse.getNode("$root[0]").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].id"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].name"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address"));
 		
-		assertEquals(1, graphNonNullResponse.getNode("address").getChildren().size());
-		assertNotNull(graphNonNullResponse.getNode("address.street"));
+		assertEquals(1, graphNonNullResponse.getNode("$root[0].address").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address.street"));
 	}
 	
 	@Test
@@ -295,18 +298,18 @@ public class PartialResultTest {
 		Response<List<Customer>> response = customerController().listForOverride();
 		ObjectGraph graphNonNullResponse = template(response, FakeCustomerController.class, "listForOverride").build(response.getData());
 		
-		assertEquals(3, graphNonNullResponse.getNodes().size());
-		assertNotNull(graphNonNullResponse.getNode("id"));
-		assertNotNull(graphNonNullResponse.getNode("name"));
-		assertNotNull(graphNonNullResponse.getNode("address"));
+		assertEquals(3, graphNonNullResponse.getNode("$root[0]").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].id"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].name"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address"));
 		
-		assertEquals(2, graphNonNullResponse.getNode("address").getChildren().size());
-		assertNotNull(graphNonNullResponse.getNode("address.street"));
-		assertNotNull(graphNonNullResponse.getNode("address.city"));
+		assertEquals(2, graphNonNullResponse.getNode("$root[0].address").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address.street"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address.city"));
 		
-		assertEquals(2, graphNonNullResponse.getNode("address.city").getChildren().size());
-		assertNotNull(graphNonNullResponse.getNode("address.city.name"));
-		assertNotNull(graphNonNullResponse.getNode("address.city.state"));
+		assertEquals(2, graphNonNullResponse.getNode("$root[0].address.city").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address.city.name"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address.city.state"));
 	}
 	
 	@Test
@@ -314,13 +317,13 @@ public class PartialResultTest {
 		Response<List<Customer>> response = customerController().listForOverridePartialResult();
 		ObjectGraph graphNonNullResponse = template(response, FakeCustomerController.class, "listForOverridePartialResult").build(response.getData());
 		
-		assertEquals(3, graphNonNullResponse.getNodes().size());
-		assertNotNull(graphNonNullResponse.getNode("id"));
-		assertNotNull(graphNonNullResponse.getNode("name"));
-		assertNotNull(graphNonNullResponse.getNode("address"));
+		assertEquals(3, graphNonNullResponse.getNode("$root[0]").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].id"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].name"));
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address"));
 		
-		assertEquals(1, graphNonNullResponse.getNode("address").getChildren().size());
-		assertNotNull(graphNonNullResponse.getNode("address.street"));
+		assertEquals(1, graphNonNullResponse.getNode("$root[0].address").getChildren().size());
+		assertNotNull(graphNonNullResponse.getNode("$root[0].address.street"));
 	}
 
 	private void checkCreateObjectGraphWithoutIncludePrimitivesAndPrimitiveIncludedExplicit(ObjectGraph graph) {

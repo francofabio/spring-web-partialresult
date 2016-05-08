@@ -1,13 +1,6 @@
 package br.com.binarti.spring.web.partialresult;
 
-import static br.com.binarti.sjog.ObjectGraphHelper.isCollection;
-
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Collection;
-import java.util.List;
 import java.util.StringJoiner;
 
 import org.apache.log4j.Logger;
@@ -23,58 +16,6 @@ public class PartialResultProvider {
 	private static final Logger logger = Logger.getLogger(PartialResultProvider.class);
 	
 	public PartialResultProvider() {
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private Object firstValueInCollection(Object collection) {
-		if (collection == null) {
-			return null;
-		}
-		if (collection instanceof List) {
-			return (!((List) collection).isEmpty()) ? ((List) collection).get(0) : null;
-		} else if (collection.getClass().isArray()) {
-			return (((Object[]) collection).length > 0) ? ((Object[]) collection)[0] : null;
-		} else {
-			throw new IllegalArgumentException("Unsupported collection type " + collection.getClass());
-		}
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private Class<?> resolveTypeVariable(TypeVariable typeVariable) {
-		return (Class<?>) typeVariable.getBounds()[0];
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private Class<?> getResponseType(Method method) {
-		Type genericReturnType = method.getGenericReturnType();
-		if (genericReturnType instanceof ParameterizedType) {
-			ParameterizedType pType = ((ParameterizedType) genericReturnType);
-			//Nested parameter
-			if (pType.getActualTypeArguments()[0] instanceof ParameterizedType) {
-				ParameterizedType innerPType = (ParameterizedType) pType.getActualTypeArguments()[0];
-				if (Collection.class.isAssignableFrom((Class<?>) innerPType.getRawType())) {
-					if (innerPType.getActualTypeArguments()[0] instanceof TypeVariable) {
-						return resolveTypeVariable((TypeVariable) innerPType.getActualTypeArguments()[0]);
-					}
-					return (Class<?>) innerPType.getActualTypeArguments()[0];
-				}
-				return (Class<?>) innerPType.getRawType();
-			} else {
-				if (pType.getActualTypeArguments()[0] instanceof TypeVariable) {
-					return resolveTypeVariable((TypeVariable) pType.getActualTypeArguments()[0]);
-				}
-				return (Class<?>) pType.getActualTypeArguments()[0];
-			}
-		}
-		return method.getReturnType();
-	}
-	
-	private Class<?> inferCollectionType(Object collection) {
-		Object firstVal = firstValueInCollection(collection);
-		if (firstVal != null) {
-			return firstVal.getClass();
-		}
-		return null;
 	}
 	
 	private void excludesPropertiesFromTemplate(ObjectGraphBuilder template, String[] properties, String root) {
@@ -120,36 +61,8 @@ public class PartialResultProvider {
 		if (partialResult == null) {
 			throw new PartialResultException("Method " + method + " intercepted, but this method is not annoted by " + PartialResult.class.getName());
 		}
-		Class<?> type = partialResult.type();
-		Object value = response.getData();
-		if (type == void.class) {
-			type = getResponseType(method);
-			if (value != null && type.equals(Object.class)) {
-				type = value.getClass();
-			} else if (value == null && type.equals(Object.class)) {
-				throw new PartialResultException("Impossible to determine the type of the partial result when target is Object and returned value is null");
-			}
-			logger.debug("Resolved type " + type);
-			//When return is a collection, the type should be the component type
-			if (isCollection(type)) {
-				logger.debug("Detect collection type");
-				Class<?> genericReturnType = getResponseType(method);
-				//When generic type is Object.class, then infer type by collection content
-				if (genericReturnType == Object.class || isCollection(type)) {
-					if (value != null) {
-						Class<?> inferred = inferCollectionType(value);
-						if (inferred != null) {
-							type = inferred;
-							logger.debug("Collection type detected by infer " + type);
-						}
-					}
-				} else {
-					type = genericReturnType;
-					logger.debug("Collection type detected using generics " + type);
-				}
-			}
-		}
-		ObjectGraphBuilder template = new ObjectGraphBuilder(type);
+		
+		ObjectGraphBuilder template = new ObjectGraphBuilder();
 		if (!partialResult.includePrimitives()) {
 			template.autoIncludePrimitivesFromRoot(false); 
 			logger.debug("Not include primitives properties for root node.");
