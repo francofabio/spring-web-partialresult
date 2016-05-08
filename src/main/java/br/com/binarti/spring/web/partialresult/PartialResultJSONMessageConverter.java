@@ -34,8 +34,42 @@ public class PartialResultJSONMessageConverter extends MappingJackson2HttpMessag
 	
 	private boolean indented = false;
 	
+	private ObjectMapperSerializeConfigurator serializeConfigurator;
+	private ObjectMapperDeserializeConfigurator deserializeConfigurator;
+	
 	public PartialResultJSONMessageConverter() {
 		setSupportedMediaTypes(Arrays.asList(new MediaType("application", "json", DEFAULT_CHARSET), new MediaType("application", "*+json", DEFAULT_CHARSET)));
+		
+		this.serializeConfigurator = new DefaultObjectMapperSerializeConfigurator();
+		this.deserializeConfigurator = new DefaultObjectMapperDeserializeConfigurator();
+	}
+	
+	public ObjectMapperSerializeConfigurator getSerializeConfigurator() {
+		return serializeConfigurator;
+	}
+	
+	public void setSerializeConfigurator(ObjectMapperSerializeConfigurator serializeConfigurator) {
+		this.serializeConfigurator = serializeConfigurator;
+	}
+	
+	public ObjectMapperDeserializeConfigurator getDeserializeConfigurator() {
+		return deserializeConfigurator;
+	}
+	
+	public void setDeserializeConfigurator(ObjectMapperDeserializeConfigurator deserializeConfigurator) {
+		this.deserializeConfigurator = deserializeConfigurator;
+	}
+	
+	private ObjectMapper createObjectMapperToSerialize() {
+		ObjectMapper objectMapper = (indented) ? jacksonSerializerBuilder.newIndentedObjectMapper() : jacksonSerializerBuilder.newObjectMapper();
+		serializeConfigurator.configure(objectMapper);
+		return objectMapper;
+	}
+	
+	private ObjectMapper createObjectMapperToDeserialize() {
+		ObjectMapper objectMapper = jacksonDeserializerBuilder.newObjectMapper();
+		deserializeConfigurator.configure(objectMapper);
+		return objectMapper;
 	}
 	
 	public boolean isIndented() {
@@ -59,7 +93,7 @@ public class PartialResultJSONMessageConverter extends MappingJackson2HttpMessag
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void writeInternal(Object object, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-		ObjectMapper objectMapper = (indented) ? jacksonSerializerBuilder.newIndentedObjectMapper() : jacksonSerializerBuilder.newObjectMapper();
+		ObjectMapper objectMapper = createObjectMapperToSerialize();
 		JsonEncoding encoding = getJsonEncoding(outputMessage.getHeaders().getContentType());
 		JsonGenerator jsonGenerator = objectMapper.getFactory().createGenerator(outputMessage.getBody(), encoding);
 		Object value = object;
@@ -90,7 +124,7 @@ public class PartialResultJSONMessageConverter extends MappingJackson2HttpMessag
 	private Object readObject(Type type, HttpInputMessage inputMessage, Class<?> contextClass)  throws IOException, HttpMessageNotReadableException {
 		JavaType javaType = getJavaType(type, contextClass);
 		try {
-			ObjectMapper objectMapper = jacksonDeserializerBuilder.newObjectMapper();
+			ObjectMapper objectMapper = createObjectMapperToDeserialize();
 			return objectMapper.readValue(inputMessage.getBody(), javaType);
 		} catch (IOException ex) {
 			throw new HttpMessageNotReadableException("Could not read JSON: " + ex.getMessage(), ex);

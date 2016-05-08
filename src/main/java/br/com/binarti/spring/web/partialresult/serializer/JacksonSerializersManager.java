@@ -35,7 +35,7 @@ public class JacksonSerializersManager {
 	}
 	
 	public void registerSerializers(ObjectMapper objectMapper) {
-		if (serializers == null) return;
+		if (serializers == null || serializers.isEmpty()) return;
 		
 		SimpleModule simpleModule = new SimpleModule();
 		Iterator<JsonSerializer<?>> it = serializers.iterator(); 

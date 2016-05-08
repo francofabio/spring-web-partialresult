@@ -36,8 +36,7 @@ public class JacksonDeserializersManager {
 
 	@SuppressWarnings({ "unchecked" })
 	public void registerDeserializers(ObjectMapper objectMapper) {
-		if (deserializers == null)
-			return;
+		if (deserializers == null || deserializers.isEmpty()) return;
 
 		SimpleModule simpleModule = new SimpleModule();
 		Iterator<JsonDeserializer<?>> it = deserializers.iterator();
